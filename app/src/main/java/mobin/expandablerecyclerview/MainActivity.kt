@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import mobin.expandablerecyclerview.adapters.MyAdapter
+import mobin.expandablerecyclerview.models.Parent
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,6 +13,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         rv.layoutManager = LinearLayoutManager(this)
-        rv.adapter = MyAdapter()
+        val list = ArrayList<Parent>(10)
+        for (i in 0..50)
+            list.add(Parent("Parent $i"))
+
+        val adapter = MyAdapter(list)
+        //   rv.setItemViewCacheSize(list.size)
+        rv.adapter = adapter
+
     }
 }

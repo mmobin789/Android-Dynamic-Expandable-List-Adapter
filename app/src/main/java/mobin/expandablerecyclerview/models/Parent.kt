@@ -2,11 +2,12 @@ package mobin.expandablerecyclerview.models
 
 import mobin.expandablerecyclerview.adapters.ExpandableRecyclerViewAdapter
 
-data class Parent(val name: String) : ExpandableRecyclerViewAdapter.Expandable<Child> {
+data class Parent(val name: String) : ExpandableRecyclerViewAdapter.ExpandableGroup<Child> {
 
+    var expanded = false
     override fun getExpandingItems(): List<Child> {
-        val list = ArrayList<Child>(20)
-        for (i in 0 until 20)
+        val list = ArrayList<Child>(10)
+        for (i in 0 until 10)
             list.add(Child("Child $i"))
         return list
 
@@ -14,7 +15,7 @@ data class Parent(val name: String) : ExpandableRecyclerViewAdapter.Expandable<C
     }
 
     override fun isExpanded(): Boolean {
-        return super.isExpanded()
+        return expanded
     }
 
 }

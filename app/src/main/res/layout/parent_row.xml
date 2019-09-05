@@ -8,6 +8,7 @@
             android:id="@+id/tvP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:textColor="@android:color/holo_red_dark" />
 
     <androidx.recyclerview.widget.RecyclerView

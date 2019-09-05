@@ -3,21 +3,16 @@ package mobin.expandablerecyclerview.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.child_row.*
 import kotlinx.android.synthetic.main.parent_row.*
 import mobin.expandablerecyclerview.R
 import mobin.expandablerecyclerview.models.Child
 import mobin.expandablerecyclerview.models.Parent
 
-class MyAdapter :
+class MyAdapter(parents: List<Parent>) :
     ExpandableRecyclerViewAdapter<Child, Parent, MyAdapter.PViewHolder, MyAdapter.CViewHolder>(
-        listOf(Parent("Munir"), Parent("Farida"))
+        parents, ExpandingDirection.VERTICAL
     ) {
-
-    init {
-
-    }
 
     override fun onCreateParentViewHolder(parent: ViewGroup, viewType: Int): PViewHolder {
 
@@ -28,7 +23,6 @@ class MyAdapter :
                 false
             )
         )
-        pvh.rv.layoutManager = LinearLayoutManager(parent.context)
 
         return pvh
     }
@@ -53,6 +47,14 @@ class MyAdapter :
         childViewHolder.tvC.text = expandedType.name
     }
 
+    override fun onParentViewClicked(expandableType: Parent, position: Int) {
+        // expandableType.expanded =
+
+    }
+
+    override fun isSingleExpanded(): Boolean {
+        return false
+    }
 
     class PViewHolder(v: View) : ExpandableRecyclerViewAdapter.ParentViewHolder(v)
 
