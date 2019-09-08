@@ -17,9 +17,10 @@ class MainActivity : AppCompatActivity() {
         for (i in 0..50)
             list.add(Parent("Parent $i"))
 
-        val adapter = MyAdapter(list)
-        //   rv.setItemViewCacheSize(list.size)
+        val adapter = MyAdapter(this, list)
         rv.adapter = adapter
+        adapter.setInitiallyExpanded(false)
+
 
     }
 }

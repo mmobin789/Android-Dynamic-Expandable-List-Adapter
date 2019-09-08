@@ -1,30 +1,30 @@
 package mobin.expandablerecyclerview.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import kotlinx.android.synthetic.main.child_row.*
 import kotlinx.android.synthetic.main.parent_row.*
 import mobin.expandablerecyclerview.R
 import mobin.expandablerecyclerview.models.Child
 import mobin.expandablerecyclerview.models.Parent
 
-class MyAdapter(parents: List<Parent>) :
+class MyAdapter(private val context: Context, parents: ArrayList<Parent>) :
     ExpandableRecyclerViewAdapter<Child, Parent, MyAdapter.PViewHolder, MyAdapter.CViewHolder>(
         parents, ExpandingDirection.VERTICAL
     ) {
 
     override fun onCreateParentViewHolder(parent: ViewGroup, viewType: Int): PViewHolder {
 
-        val pvh = PViewHolder(
+        return PViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.parent_row,
                 parent,
                 false
             )
         )
-
-        return pvh
     }
 
 
@@ -47,10 +47,19 @@ class MyAdapter(parents: List<Parent>) :
         childViewHolder.tvC.text = expandedType.name
     }
 
-    override fun onParentViewClicked(expandableType: Parent, position: Int) {
-        // expandableType.expanded =
-
+    override fun onParentViewClicked(expandableGroup: Parent, position: Int) {
+        Toast.makeText(context, expandableGroup.name + " Position: " + position, Toast.LENGTH_SHORT)
+            .show()
     }
+
+    override fun onChildViewClicked(expandedType: Child, expandableGroup: Parent, position: Int) {
+        Toast.makeText(
+            context,
+            expandableGroup.name + " " + expandedType.name + " Position: " + position,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
 
     override fun isSingleExpanded(): Boolean {
         return false
