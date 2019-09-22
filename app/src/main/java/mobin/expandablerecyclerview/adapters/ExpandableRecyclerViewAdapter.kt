@@ -31,7 +31,9 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     private var adapterAttached = false
 
-    private lateinit var recyclerView: RecyclerView
+    private var recyclerView: RecyclerView? = null
+
+    private val TAG = "ExpandableGroupAdapter"
 
 
     enum class ExpandingDirection {
@@ -88,8 +90,13 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             onParentViewClicked(expandable, position)
 
-            Log.d("ExpandableParentClick", "Clicked @ $position")
+            Log.d(TAG, "Clicked @ $position")
         }
+
+//        pvh.containerView.setOnLongClickListener {
+//            removeGroup(pvh.adapterPosition)
+//            true
+//        }
 
 
         return pvh
@@ -142,7 +149,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     private fun handleLastPositionScroll(position: Int) {
         if (position == mExpandableList.lastIndex)
-            recyclerView.smoothScrollToPosition(position)
+            recyclerView?.smoothScrollToPosition(position)
     }
 
 
@@ -179,16 +186,6 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     }
 
-    /**
-     * Specifies if you want to show all items expanded in UI.
-     * @param initiallyExpanded A bit to enable/disable initial expansion.
-     * Note: If any group is clicked initial Expansion is instantly set to false.
-     */
-    fun setInitiallyExpanded(initiallyExpanded: Boolean) {
-        expanded = initiallyExpanded
-        if (expanded)
-            mExpandableList.applyExpansionState(true)
-    }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
 
@@ -196,7 +193,75 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
         this.recyclerView = recyclerView
 
-        Log.d("ExpandableAdapter", "Attached: $adapterAttached")
+        Log.d(TAG, "Attached: $adapterAttached")
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        adapterAttached = false
+        this.recyclerView = null
+    }
+
+    /**
+     * Specifies if you want to show all items expanded in UI.
+     * @param expanded A bit to enable/disable initial expansion.
+     * Note: If any group is clicked initial Expansion is instantly set to false.
+     */
+    fun setExpanded(expanded: Boolean) {
+        this.expanded = expanded
+        if (expanded)
+            mExpandableList.applyExpansionState(true)
+    }
+
+    /**
+     * A swift method to add a new group to the list.
+     * @param expandableGroup The new group.
+     * @param expanded An optional state for expansion to apply (false by default).
+     * @param position An optional current position at which to insert the new group in the adapter. (not applicable by default).
+     */
+    fun addGroup(expandableGroup: ExpandableGroup, expanded: Boolean = false, position: Int = -1) {
+
+
+        var atPosition = itemCount
+
+        if (position > atPosition) {
+            Log.e(TAG, "Position to add group exceeds the total group count of $atPosition")
+            return
+        }
+
+
+        expandableGroup.isExpanded = expanded
+
+
+
+        if (position == -1 || position == atPosition)
+            mExpandableList.add(expandableGroup)
+        else if (position > -1) {
+            mExpandableList.add(position, expandableGroup)
+            atPosition = position
+        }
+
+        if (adapterAttached)
+            notifyItemInserted(atPosition)
+
+
+    }
+
+    /**
+     * A swift method to remove a group from the list.
+     * @param position The current position of the group the adapter.
+     */
+    fun removeGroup(position: Int) {
+
+        if (position < 0 || position > itemCount) {
+            Log.e(TAG, "Group can't be removed at position $position")
+            return
+        }
+
+        mExpandableList.removeAt(position)
+
+        if (adapterAttached)
+            notifyItemRemoved(position)
+
     }
 
     /**
@@ -231,7 +296,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             }
         }
-        Log.e("ExpandableAdapter", "Recycler View for expanded items not found in parent layout.")
+        Log.e(TAG, "Recycler View for expanded items not found in parent layout.")
         return null
     }
 
@@ -278,6 +343,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
          * returns a list of provided type to be used for expansion.
          */
         abstract fun getExpandingItems(): List<E>
+
 
         /**
          *   Specifies if you want to show the UI in expanded form.
