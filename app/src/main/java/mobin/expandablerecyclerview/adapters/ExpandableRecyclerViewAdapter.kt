@@ -19,23 +19,48 @@ import kotlinx.coroutines.launch
  * @author Mobin Munir
  */
 abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup : ExpandableRecyclerViewAdapter.ExpandableGroup<ExpandedType>, PVH : ExpandableRecyclerViewAdapter.ParentViewHolder, CVH : ExpandableRecyclerViewAdapter.ChildViewHolder>
+
+/**
+ *  Initializes the adapter with a list of expandable groups and a direction of inflation.
+ *  @param mExpandableList The list of expandable groups.
+ *  @param expandingDirection An enum for direction.
+ */
     (
     private val mExpandableList: ArrayList<ExpandableGroup>,
     private val expandingDirection: ExpandingDirection
-) :
-    RecyclerView.Adapter<PVH>() {
+) : RecyclerView.Adapter<PVH>() {
 
+
+    /**
+     * A bit to maintain expansion state over entire listing.
+     * If list is fully-expanded it's set to true.
+     */
     private var expanded = false
 
+    /**
+     * An integer to maintain position for singular expansion over entire listing.
+     */
     private var lastExpandedPosition = -1
 
+    /**
+     * A bit to maintain adapter attachment status to a recycler view.
+     * If this adapter is attached to a recycler view this bit is set to true.
+     */
     private var adapterAttached = false
 
-    private var recyclerView: RecyclerView? = null
+    /**
+     * A reference to the recycler view that this adapter is currently attached to.
+     */
+    private var mParentRecyclerView: RecyclerView? = null
 
+    /**
+     * A tag for logging.
+     */
     private val TAG = "ExpandableGroupAdapter"
 
-
+    /**
+     * An enum class holds constant for expansion directions.
+     */
     enum class ExpandingDirection {
         HORIZONTAL,
         VERTICAL
@@ -149,7 +174,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     private fun handleLastPositionScroll(position: Int) {
         if (position == mExpandableList.lastIndex)
-            recyclerView?.smoothScrollToPosition(position)
+            mParentRecyclerView?.smoothScrollToPosition(position)
     }
 
 
@@ -191,14 +216,14 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
         adapterAttached = true
 
-        this.recyclerView = recyclerView
+        this.mParentRecyclerView = recyclerView
 
         Log.d(TAG, "Attached: $adapterAttached")
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         adapterAttached = false
-        this.recyclerView = null
+        this.mParentRecyclerView = null
     }
 
     /**
