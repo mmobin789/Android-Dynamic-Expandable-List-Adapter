@@ -243,6 +243,8 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         if (adapterAttached)
             notifyItemInserted(atPosition)
 
+        Log.d(TAG, "Group added at $atPosition")
+
 
     }
 
@@ -261,6 +263,8 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
         if (adapterAttached)
             notifyItemRemoved(position)
+
+        Log.d(TAG, "Group removed at $position")
 
     }
 
