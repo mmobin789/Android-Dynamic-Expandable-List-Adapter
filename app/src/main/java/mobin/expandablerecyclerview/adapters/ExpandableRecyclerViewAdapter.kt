@@ -19,21 +19,48 @@ import kotlinx.coroutines.launch
  * @author Mobin Munir
  */
 abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup : ExpandableRecyclerViewAdapter.ExpandableGroup<ExpandedType>, PVH : ExpandableRecyclerViewAdapter.ParentViewHolder, CVH : ExpandableRecyclerViewAdapter.ChildViewHolder>
+
+/**
+ *  Initializes the adapter with a list of expandable groups and a direction of inflation.
+ *  @param mExpandableList The list of expandable groups.
+ *  @param expandingDirection An enum for direction.
+ */
     (
     private val mExpandableList: ArrayList<ExpandableGroup>,
     private val expandingDirection: ExpandingDirection
-) :
-    RecyclerView.Adapter<PVH>() {
+) : RecyclerView.Adapter<PVH>() {
 
+
+    /**
+     * A bit to maintain expansion state over entire listing.
+     * If list is fully-expanded it's set to true.
+     */
     private var expanded = false
 
+    /**
+     * An integer to maintain position for singular expansion over entire listing.
+     */
     private var lastExpandedPosition = -1
 
+    /**
+     * A bit to maintain adapter attachment status to a recycler view.
+     * If this adapter is attached to a recycler view this bit is set to true.
+     */
     private var adapterAttached = false
 
-    private lateinit var recyclerView: RecyclerView
+    /**
+     * A reference to the recycler view that this adapter is currently attached to.
+     */
+    private var mParentRecyclerView: RecyclerView? = null
 
+    /**
+     * A tag for logging.
+     */
+    private val TAG = "ExpandableGroupAdapter"
 
+    /**
+     * An enum class holds constant for expansion directions.
+     */
     enum class ExpandingDirection {
         HORIZONTAL,
         VERTICAL
@@ -88,8 +115,13 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             onParentViewClicked(expandable, position)
 
-            Log.d("ExpandableParentClick", "Clicked @ $position")
+            Log.d(TAG, "Clicked @ $position")
         }
+
+//        pvh.containerView.setOnLongClickListener {
+//            removeGroup(pvh.adapterPosition)
+//            true
+//        }
 
 
         return pvh
@@ -141,7 +173,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     private fun handleLastPositionScroll(position: Int) {
         if (position == mExpandableList.lastIndex)
-            recyclerView.smoothScrollToPosition(position)
+            mParentRecyclerView?.smoothScrollToPosition(position)
     }
 
 
@@ -178,6 +210,21 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     }
 
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+
+        adapterAttached = true
+
+        this.mParentRecyclerView = recyclerView
+
+        Log.d(TAG, "Attached: $adapterAttached")
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        adapterAttached = false
+        this.mParentRecyclerView = null
+    }
+
     /**
      * Specifies if you want to show all items expanded in UI.
      * @param expanded A bit to enable/disable full expansion.
@@ -188,20 +235,67 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         mExpandableList.applyExpansionState(expanded)
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+    /**
+     * A swift method to add a new group to the list.
+     * @param expandableGroup The new group.
+     * @param expanded An optional state for expansion to apply (false by default).
+     * @param position An optional current position at which to insert the new group in the adapter. (not applicable by default).
+     */
+    fun addGroup(expandableGroup: ExpandableGroup, expanded: Boolean = false, position: Int = -1) {
 
-        adapterAttached = true
 
-        this.recyclerView = recyclerView
+        var atPosition = itemCount
 
-        Log.d("ExpandableAdapter", "Attached: $adapterAttached")
+        if (position > atPosition) {
+            Log.e(TAG, "Position to add group exceeds the total group count of $atPosition")
+            return
+        }
+
+
+        expandableGroup.isExpanded = expanded
+
+
+
+        if (position == -1 || position == atPosition)
+            mExpandableList.add(expandableGroup)
+        else if (position > -1) {
+            mExpandableList.add(position, expandableGroup)
+            atPosition = position
+        }
+
+        if (adapterAttached)
+            notifyItemInserted(atPosition)
+
+        Log.d(TAG, "Group added at $atPosition")
+
+
+    }
+
+    /**
+     * A swift method to remove a group from the list.
+     * @param position The current position of the group the adapter.
+     */
+    fun removeGroup(position: Int) {
+
+        if (position < 0 || position > itemCount) {
+            Log.e(TAG, "Group can't be removed at position $position")
+            return
+        }
+
+        mExpandableList.removeAt(position)
+
+        if (adapterAttached)
+            notifyItemRemoved(position)
+
+        Log.d(TAG, "Group removed at $position")
+
     }
 
     /**
      * Asynchronously applies the expansion state to all the list in a background thread swiftly
      * and notifies the adapter in an efficient manner to dispatch updates.
-     * @param expansionState The expansion state to apply.
-     * This method can be made public to work on subset of @see ExpandableGroup Class by declaring it outside this class.
+     * @param expansionState The expansion state to apply to all list.
+     * This method can be made public to work on subset of @see ExpandableGroup Class by declaring it outside this class
      */
     private fun List<ExpandableGroup>.applyExpansionState(expansionState: Boolean) {
 
@@ -229,7 +323,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             }
         }
-        Log.e("ExpandableAdapter", "Recycler View for expanded items not found in parent layout.")
+        Log.e(TAG, "Recycler View for expanded items not found in parent layout.")
         return null
     }
 
