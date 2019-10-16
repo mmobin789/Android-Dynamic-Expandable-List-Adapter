@@ -19,8 +19,6 @@ class MainActivity : AppCompatActivity() {
 
         val adapter = MyAdapter(this, list)
         rv.adapter = adapter
-        adapter.setExpanded(true)
-        adapter.addGroup(Parent("Parent 11"))
 
     }
 }

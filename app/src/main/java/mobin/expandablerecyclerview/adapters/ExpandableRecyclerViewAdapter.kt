@@ -79,12 +79,6 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             childRecyclerView.layoutManager = linearLayoutManager
 
-
-//            childRecyclerView.visibility = if (initiallyExpanded)
-//                View.VISIBLE
-//            else View.GONE
-
-
         }
     }
 
@@ -117,20 +111,11 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             Log.d(TAG, "Clicked @ $position")
         }
-
-//        pvh.containerView.setOnLongClickListener {
-//            removeGroup(pvh.adapterPosition)
-//            true
-//        }
-
-
         return pvh
     }
 
     private fun collapseAllGroups() {
         setExpanded(false)
-
-
     }
 
     private fun reverseExpandableState(expandableGroup: ExpandableGroup) {
