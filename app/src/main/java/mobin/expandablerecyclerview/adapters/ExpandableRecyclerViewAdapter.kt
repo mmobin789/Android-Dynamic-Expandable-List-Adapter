@@ -96,8 +96,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     }
 
     private fun collapseAllGroups() {
-        mExpandableList.applyExpansionState(false)
-        expanded = false
+        setExpanded(false)
 
 
     }
@@ -181,13 +180,12 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     /**
      * Specifies if you want to show all items expanded in UI.
-     * @param initiallyExpanded A bit to enable/disable initial expansion.
-     * Note: If any group is clicked initial Expansion is instantly set to false.
+     * @param expanded A bit to enable/disable full expansion.
+     * Note: If any group is clicked overall Expansion is instantly discarded.
      */
-    fun setInitiallyExpanded(initiallyExpanded: Boolean) {
-        expanded = initiallyExpanded
-        if (expanded)
-            mExpandableList.applyExpansionState(true)
+    fun setExpanded(expanded: Boolean) {
+        this.expanded = expanded
+        mExpandableList.applyExpansionState(expanded)
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -200,10 +198,10 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     }
 
     /**
-     * Synchronously applies the expansion state of all the list in a background thread swiftly
+     * Asynchronously applies the expansion state to all the list in a background thread swiftly
      * and notifies the adapter in an efficient manner to dispatch updates.
-     * @param expansionState The expansion state to apply to all list.
-     * This method can be made public to work on subset of @see ExpandableGroup Class by declaring it outside this class
+     * @param expansionState The expansion state to apply.
+     * This method can be made public to work on subset of @see ExpandableGroup Class by declaring it outside this class.
      */
     private fun List<ExpandableGroup>.applyExpansionState(expansionState: Boolean) {
 

@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
 
         val adapter = MyAdapter(this, list)
         rv.adapter = adapter
-        adapter.setInitiallyExpanded(false)
+        //  adapter.setExpanded(true)
 
 
     }
