@@ -1,17 +1,15 @@
 package mobin.expandablerecyclerview.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import kotlinx.android.synthetic.main.child_row.*
 import kotlinx.android.synthetic.main.parent_row.*
 import mobin.expandablerecyclerview.R
 import mobin.expandablerecyclerview.models.Child
 import mobin.expandablerecyclerview.models.Parent
 
-class MyAdapter(private val context: Context, parents: ArrayList<Parent>) :
+class MyAdapter(parents: ArrayList<Parent>) :
     ExpandableRecyclerViewAdapter<Child, Parent, MyAdapter.PViewHolder, MyAdapter.CViewHolder>(
         parents, ExpandingDirection.VERTICAL
     ) {
@@ -45,19 +43,6 @@ class MyAdapter(private val context: Context, parents: ArrayList<Parent>) :
 
     override fun onBindChildViewHolder(childViewHolder: CViewHolder, expandedType: Child) {
         childViewHolder.tvC.text = expandedType.name
-    }
-
-    override fun onParentViewClicked(expandableGroup: Parent, position: Int) {
-        Toast.makeText(context, expandableGroup.name + " Position: " + position, Toast.LENGTH_SHORT)
-            .show()
-    }
-
-    override fun onChildViewClicked(expandedType: Child, expandableGroup: Parent, position: Int) {
-        Toast.makeText(
-            context,
-            expandableGroup.name + " " + expandedType.name + " Position: " + position,
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
 

@@ -1,6 +1,7 @@
 package mobin.expandablerecyclerview
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,8 +18,27 @@ class MainActivity : AppCompatActivity() {
         for (i in 0..9)
             list.add(Parent("Parent $i"))
 
-        val adapter = MyAdapter(this, list)
+        val adapter = MyAdapter(list)
         rvM.adapter = adapter
+
+        adapter.setExpanded(false)
+
+        adapter.setExpandableViewClickListener { expandableGroup, position ->
+            Toast.makeText(
+                this,
+                expandableGroup.name + " Position: " + position,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+
+        adapter.setExpandedViewClickListener { expandedType, expandableGroup, position ->
+            Toast.makeText(
+                this,
+                expandableGroup.name + " " + expandedType.name + " Position: " + position,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
     }
 }

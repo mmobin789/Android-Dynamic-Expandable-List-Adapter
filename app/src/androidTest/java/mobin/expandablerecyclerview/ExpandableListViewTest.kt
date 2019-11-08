@@ -6,6 +6,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.rule.ActivityTestRule
+import kotlinx.android.synthetic.main.activity_main.*
 import mobin.expandablerecyclerview.adapters.MyAdapter
 import org.hamcrest.Matchers
 import org.junit.Rule
@@ -20,32 +21,31 @@ import kotlin.random.Random
 
 class ExpandableListViewTest {
     @get:Rule
-    val mainActivity = getRule()
+    val mainActivity = ActivityTestRule(MainActivity::class.java)
 
-    fun getRule() = ActivityTestRule(MainActivity::class.java)
     @Test
     fun testExpandableListClick() {
-        val randomIndex = Random.nextInt(10)
+        val randomParentIndex = Random.nextInt(10)
+        val randomChildIndex = Random.nextInt(10)
         val root = RootMatchers.withDecorView(Matchers.`is`(mainActivity.activity.window.decorView))
-        onView(withId(R.id.rvM)).inRoot(root).perform(
+        val parentViewClickAction =
             RecyclerViewActions.actionOnItemAtPosition<MyAdapter.PViewHolder>(
-                randomIndex,
+                randomParentIndex,
                 click()
             )
-        )
+        val parentRV = mainActivity.activity.rvM
+
+        onView(withId(parentRV.id)).inRoot(root).perform(parentViewClickAction)
+
+        val myAdapter = parentRV.adapter as MyAdapter
+
+        val childViewClickAction =
+            RecyclerViewActions.actionOnItemAtPosition<MyAdapter.CViewHolder>(
+                randomChildIndex,
+                click()
+            )
+
 
     }
 
-    @Test
-    fun testExpandableListChildClick() {
-        val randomIndex = Random.nextInt(10)
-        val root = RootMatchers.withDecorView(Matchers.`is`(mainActivity.activity.window.decorView))
-        onView(withId(R.id.rvM)).inRoot(root).perform(
-            RecyclerViewActions.actionOnItemAtPosition<MyAdapter.PViewHolder>(
-                randomIndex,
-                click()
-            )
-        )
-
-    }
 }
