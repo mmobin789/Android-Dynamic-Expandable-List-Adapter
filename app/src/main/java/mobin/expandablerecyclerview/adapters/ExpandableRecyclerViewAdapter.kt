@@ -11,6 +11,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+
+/**
+ * A tag for logging.
+ */
+private const val TAG = "ExpandableGroupAdapter"
+
+
 /**
  * ExpandableGroup Adapter for recycler view needs a child type and parent type and a parent list in constructor
  * to create an expandable listing view UI
@@ -53,10 +60,6 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
      */
     private var mParentRecyclerView: RecyclerView? = null
 
-    /**
-     * A tag for logging.
-     */
-    private val TAG = "ExpandableGroupAdapter"
 
     /**
      * An enum class holds constant for expansion directions.
@@ -200,6 +203,8 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
         adapterAttached = true
 
+        recyclerView.layoutManager = LinearLayoutManager(recyclerView.context)
+
         this.mParentRecyclerView = recyclerView
 
         Log.d(TAG, "Attached: $adapterAttached")
@@ -295,22 +300,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
             notifyItemRangeChanged(0, itemCount)
     }
 
-    /**
-     * Searches View hierarchy for an instance of RecyclerView
-     * @return RecyclerView or null if not found
-     */
-    private fun View.getRecyclerView(): RecyclerView? {
-        if (this is ViewGroup && childCount > 0) {
-            forEach {
-                if (it is RecyclerView) {
-                    return it
-                }
 
-            }
-        }
-        Log.e(TAG, "Recycler View for expanded items not found in parent layout.")
-        return null
-    }
 
     private inner class ChildListAdapter(
         private val expandableGroup: ExpandableGroup,
@@ -385,5 +375,22 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
      */
     abstract fun isSingleExpanded(): Boolean
 
+}
+
+/**
+ * Searches View hierarchy for an instance of RecyclerView.
+ * @return RecyclerView or null if not found
+ */
+fun View.getRecyclerView(): RecyclerView? {
+    if (this is ViewGroup && childCount > 0) {
+        forEach {
+            if (it is RecyclerView) {
+                return it
+            }
+
+        }
+    }
+    Log.e(TAG, "Recycler View for expanded items not found in parent layout.")
+    return null
 }
 

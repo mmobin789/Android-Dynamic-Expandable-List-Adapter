@@ -6,8 +6,8 @@ data class Parent(val name: String) : ExpandableRecyclerViewAdapter.ExpandableGr
 
 
     override fun getExpandingItems(): List<Child> {
-        val list = ArrayList<Child>(50)
-        for (i in 0..50)
+        val list = ArrayList<Child>(10)
+        for (i in 0..10)
             list.add(Child("Child $i"))
         return list
 

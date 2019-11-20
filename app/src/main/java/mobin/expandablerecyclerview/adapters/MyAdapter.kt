@@ -48,7 +48,7 @@ class MyAdapter(private val context: Context, parents: ArrayList<Parent>) :
     }
 
     override fun onParentViewClicked(expandableGroup: Parent, position: Int) {
-        Toast.makeText(context, expandableGroup.name + " Position: " + position, Toast.LENGTH_SHORT)
+        Toast.makeText(context, expandableGroup.name + " Position: " + position, Toast.LENGTH_LONG)
             .show()
     }
 
@@ -56,7 +56,7 @@ class MyAdapter(private val context: Context, parents: ArrayList<Parent>) :
         Toast.makeText(
             context,
             expandableGroup.name + " " + expandedType.name + " Position: " + position,
-            Toast.LENGTH_SHORT
+            Toast.LENGTH_LONG
         ).show()
     }
 
