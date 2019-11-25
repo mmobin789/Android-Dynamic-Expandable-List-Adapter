@@ -1,19 +1,19 @@
 package mobin.expandablerecyclerview
 
-import android.view.View
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.rule.ActivityTestRule
+import mobin.expandablerecyclerview.TestUtils.atChildPosition
+import mobin.expandablerecyclerview.TestUtils.atPosition
+import mobin.expandablerecyclerview.TestUtils.clickActionOnChildRecyclerView
 import mobin.expandablerecyclerview.adapters.MyAdapter
-import mobin.expandablerecyclerview.adapters.getRecyclerView
-import org.hamcrest.Matcher
 import org.junit.Rule
 import org.junit.Test
 import kotlin.random.Random
+
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -27,7 +27,11 @@ class ExpandableListViewTest {
     @JvmField
     val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
-
+    /**
+     * Test click on expandable listing.
+     * Assertion: List is expanded or not.
+     * Passing Criteria: state can be either expandable or expanded.
+     */
     @Test
     fun testExpandableListClick() {
         val randomIndex = Random.nextInt(10)
@@ -40,22 +44,14 @@ class ExpandableListViewTest {
 
     }
 
-    @Test
-    fun testExpandableListText() {
-        val randomIndex = Random.nextInt(10)
-//        onView(withId(R.id.rvM)).perform(
-//            RecyclerViewActions.actionOnItemAtPosition<MyAdapter.PViewHolder>(
-//                randomIndex,
-//                )
-//        )
-
-    }
-
+    /**
+     * Test click on expanded listing
+     * Assertion: List is expandable not expanded.
+     * Passing Criteria: List must be not be in expanded state.
+     */
     @Test
     fun testExpandedListClick() {
         val randomIndex = Random.nextInt(10)
-//        val root =
-//            RootMatchers.withDecorView(Matchers.`is`(mActivityTestRule.activity.window.decorView))
 
 
         onView(withId(R.id.rvM)).perform(
@@ -74,34 +70,29 @@ class ExpandableListViewTest {
 
     }
 
-//    private fun eMatcher() = object : TypeSafeMatcher<View>() {
-//        override fun describeTo(description: Description?) {
-//
-//        }
-//
-//        override fun matchesSafely(item: View?): Boolean {
-//
-//        }
-//
-//    }
+    /**
+     * Test text on expandable listing
+     * Assertion: List is expanded or not.
+     * Passing Criteria: state can be either expandable or expanded.
+     */
+    @Test
+    fun testExpandableText() {
+        val randomIndex = Random.nextInt(10)
+        onView(withId(R.id.rvM))
+            .check(matches(atPosition(randomIndex, hasDescendant(withText("Parent $randomIndex")))))
+    }
 
-    private fun clickActionOnChildRecyclerView(index: Int) = object : ViewAction {
-        override fun getConstraints(): Matcher<View>? {
-            return null
-        }
-
-        override fun getDescription(): String {
-            return "Click On Child RV @ $index"
-        }
-
-        override fun perform(uiController: UiController?, view: View?) {
-            val rvChild = view?.getRecyclerView()
-            click().perform(
-                uiController,
-                rvChild?.findViewHolderForAdapterPosition(index)?.itemView
-            )
-
-        }
+    /**
+     * Test text on expanded listing
+     * Assertion: List is expanded.
+     * Passing Criteria: List must be in expanded state.
+     */
+    // todo this method is buggy must be stable before back-merge to master.
+    @Test
+    fun testExpandedText() {
+        val randomIndex = Random.nextInt(10)
+        onView(withId(R.id.rvM))
+            .check(matches(atChildPosition(randomIndex, withText("Child $randomIndex"))))
     }
 
 

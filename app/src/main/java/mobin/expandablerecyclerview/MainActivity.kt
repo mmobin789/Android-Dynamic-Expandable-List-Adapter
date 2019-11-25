@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
             list.add(Parent("Parent $i"))
 
         val adapter = MyAdapter(this, list)
-        //adapter.setExpanded(true)
+        adapter.setExpanded(true)
         rvM.adapter = adapter
 
     }
