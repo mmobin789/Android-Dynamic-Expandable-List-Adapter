@@ -72,7 +72,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     /**
      * A tag for logging.
      */
-    val TAG = "ExpandableGroupAdapter"
+    private val mTAG = "ExpandableGroupAdapter"
 
     /**
      * An enum class holds constant for expansion directions.
@@ -125,7 +125,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             expandableViewClick?.invoke(expandable, position)
 
-            Log.d(TAG, "Clicked @ $position")
+            Log.d(mTAG, "Clicked @ $position")
         }
         return pvh
     }
@@ -216,9 +216,11 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
         adapterAttached = true
 
-        this.mParentRecyclerView = recyclerView
+        mParentRecyclerView = recyclerView
 
-        Log.d(TAG, "Attached: $adapterAttached")
+        mParentRecyclerView?.layoutManager = LinearLayoutManager(recyclerView.context)
+
+        Log.d(mTAG, "Attached: $adapterAttached")
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
@@ -229,7 +231,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     /**
      * Specifies if you want to show all items expanded in UI.
      * @param expanded A bit to enable/disable full expansion.
-     * Note: If any group is clicked overall Expansion is instantly discarded.
+     * Note: If any group is clicked overall expansion is instantly discarded.
      */
     fun setExpanded(expanded: Boolean) {
         this.expanded = expanded
@@ -270,7 +272,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         var atPosition = itemCount
 
         if (position > atPosition) {
-            Log.e(TAG, "Position to add group exceeds the total group count of $atPosition")
+            Log.e(mTAG, "Position to add group exceeds the total group count of $atPosition")
             return
         }
 
@@ -289,7 +291,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         if (adapterAttached)
             notifyItemInserted(atPosition)
 
-        Log.d(TAG, "Group added at $atPosition")
+        Log.d(mTAG, "Group added at $atPosition")
 
 
     }
@@ -301,7 +303,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     fun removeGroup(position: Int) {
 
         if (position < 0 || position > itemCount) {
-            Log.e(TAG, "Group can't be removed at position $position")
+            Log.e(mTAG, "Group can't be removed at position $position")
             return
         }
 
@@ -310,7 +312,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         if (adapterAttached)
             notifyItemRemoved(position)
 
-        Log.d(TAG, "Group removed at $position")
+        Log.d(mTAG, "Group removed at $position")
 
     }
 
@@ -346,7 +348,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             }
         }
-        Log.e(TAG, "Recycler View for expanded items not found in parent layout.")
+        Log.e(mTAG, "Recycler View for expanded items not found in parent layout.")
         return null
     }
 
@@ -413,7 +415,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
      * Specifies if you want to show one item expanded in UI at most.
      * @return true to enable one child expansion at a time.
      */
-    abstract fun isSingleExpanded(): Boolean
+    protected abstract fun isSingleExpanded(): Boolean
 
 }
 

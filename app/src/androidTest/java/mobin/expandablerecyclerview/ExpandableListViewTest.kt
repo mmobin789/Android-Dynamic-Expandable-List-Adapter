@@ -86,8 +86,8 @@ class ExpandableListViewTest {
      * Test text on expanded listing
      * Assertion: List is expanded.
      * Passing Criteria: List must be in expanded state.
+     * This only works when simultaneous execution of this whole test class takes place.
      */
-    // todo this method is buggy must be stable before back-merge to master.
     @Test
     fun testExpandedText() {
         val randomIndex = Random.nextInt(10)
