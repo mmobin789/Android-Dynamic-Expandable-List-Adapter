@@ -9,9 +9,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".VerticalStepsActivity">
+        <activity android:name=".SampleActivityForJava">
             <intent-filter>
                 <action android:name="Sample" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+        <activity android:name=".VerticalStepsActivity">
+            <intent-filter>
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
