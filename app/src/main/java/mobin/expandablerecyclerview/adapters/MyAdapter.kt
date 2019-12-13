@@ -3,6 +3,7 @@ package mobin.expandablerecyclerview.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import kotlinx.android.synthetic.main.child_row.*
 import kotlinx.android.synthetic.main.parent_row.*
 import mobin.expandablerecyclerview.R
@@ -36,21 +37,50 @@ class MyAdapter(parents: ArrayList<Parent>) :
         )
     }
 
-    override fun onBindParentViewHolder(parentViewHolder: PViewHolder, expandableType: Parent) {
+    override fun onBindParentViewHolder(
+        parentViewHolder: PViewHolder,
+        expandableType: Parent,
+        position: Int
+    ) {
         parentViewHolder.tvP.text = expandableType.name
 
     }
 
-    override fun onBindChildViewHolder(childViewHolder: CViewHolder, expandedType: Child) {
+    override fun onBindChildViewHolder(
+        childViewHolder: CViewHolder,
+        expandedType: Child,
+        expandableType: Parent,
+        position: Int
+    ) {
         childViewHolder.tvC.text = expandedType.name
     }
 
 
-    override fun isSingleExpanded(): Boolean {
-        return false
+    override fun onExpandedClick(
+        expandableViewHolder: PViewHolder,
+        expandedViewHolder: CViewHolder,
+        expandedType: Child,
+        expandableType: Parent
+    ) {
+        Toast.makeText(
+            expandableViewHolder.containerView.context,
+            expandableType.name + " " + expandedType.name + " Position: " + expandedViewHolder.adapterPosition,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
-    class PViewHolder(v: View) : ExpandableRecyclerViewAdapter.ParentViewHolder(v)
+    override fun onExpandableClick(
+        expandableViewHolder: PViewHolder,
+        expandableType: Parent
+    ) {
+        Toast.makeText(
+            expandableViewHolder.containerView.context,
+            expandableType.name + " Position: " + expandableViewHolder.adapterPosition,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
-    class CViewHolder(v: View) : ExpandableRecyclerViewAdapter.ChildViewHolder(v)
+    class PViewHolder(v: View) : ExpandableRecyclerViewAdapter.ExpandableViewHolder(v)
+
+    class CViewHolder(v: View) : ExpandableRecyclerViewAdapter.ExpandedViewHolder(v)
 }

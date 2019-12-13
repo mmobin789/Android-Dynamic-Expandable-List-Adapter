@@ -14,11 +14,11 @@ import kotlinx.coroutines.launch
 /**
  * ExpandableGroup Adapter for recycler view needs a child type and parent type and a parent list in constructor
  * to create an expandable listing view UI
- * @param ExpandableGroup Parent Type (This is the class providing concrete implementation of the ExpandableGroup Interface)
+ * @param ExpandableType Parent Type (This is the class providing concrete implementation of the ExpandableGroup Interface)
  * @param ExpandedType Child Type (This can be a subtype of Any object)
  * @author Mobin Munir
  */
-abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup : ExpandableRecyclerViewAdapter.ExpandableGroup<ExpandedType>, PVH : ExpandableRecyclerViewAdapter.ParentViewHolder, CVH : ExpandableRecyclerViewAdapter.ChildViewHolder>
+abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableType : ExpandableRecyclerViewAdapter.ExpandableGroup<ExpandedType>, PVH : ExpandableRecyclerViewAdapter.ExpandableViewHolder, CVH : ExpandableRecyclerViewAdapter.ExpandedViewHolder>
 
 /**
  *  Initializes the adapter with a list of expandable groups and a direction of inflation.
@@ -26,7 +26,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
  *  @param expandingDirection An enum for direction.
  */
     (
-    private val mExpandableList: ArrayList<ExpandableGroup>,
+    private val mExpandableList: ArrayList<ExpandableType>,
     private val expandingDirection: ExpandingDirection
 ) : RecyclerView.Adapter<PVH>() {
 
@@ -52,22 +52,6 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
      * A reference to the recycler view that this adapter is currently attached to.
      */
     private var mParentRecyclerView: RecyclerView? = null
-
-    /**
-     * A reference to delegation for click event on expandable view i-e (Parent).
-     */
-
-    private var expandableViewClick: ((expandableGroup: ExpandableGroup, position: Int) -> Unit)? =
-        null
-
-    /**
-     * A reference to delegation for click event on expanded view i-e (Child).
-     */
-    private var expandedViewClick: ((
-        expandedType: ExpandedType,
-        expandableGroup: ExpandableGroup,
-        position: Int
-    ) -> Unit)? = null
 
     /**
      * A tag for logging.
@@ -123,7 +107,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
             handleLastPositionScroll(position)
 
-            expandableViewClick?.invoke(expandable, position)
+            onExpandableClick(pvh, expandable)
 
             Log.d(mTAG, "Clicked @ $position")
         }
@@ -134,7 +118,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         setExpanded(false)
     }
 
-    private fun reverseExpandableState(expandableGroup: ExpandableGroup) {
+    private fun reverseExpandableState(expandableGroup: ExpandableType) {
         expandableGroup.isExpanded = !expandableGroup.isExpanded
     }
 
@@ -165,7 +149,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     }
 
-    private fun handleExpansion(expandableGroup: ExpandableGroup, position: Int) {
+    private fun handleExpansion(expandableGroup: ExpandableType, position: Int) {
         reverseExpandableState(expandableGroup)
         notifyItemChanged(position)
 
@@ -187,6 +171,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         val expandableGroup = mExpandableList[position]
         val childListAdapter = ChildListAdapter(
             expandableGroup
+            , holder, position
         ) { viewGroup, viewType ->
             onCreateChildViewHolder(viewGroup, viewType)
 
@@ -199,10 +184,10 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
         clickEvent(expandableGroup, holder.containerView)
 
 
-        onBindParentViewHolder(holder, expandableGroup)
+        onBindParentViewHolder(holder, expandableGroup, position)
     }
 
-    private fun clickEvent(expandableGroup: ExpandableGroup, containerView: View) {
+    private fun clickEvent(expandableGroup: ExpandableType, containerView: View) {
         val childRecyclerView = containerView.getRecyclerView()
 
         childRecyclerView?.visibility = if (expandableGroup.isExpanded)
@@ -239,34 +224,12 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     }
 
     /**
-     * A method to set click listener on expandable view i-e (Parent)
-     * @param expandableViewClick A delegate to deliver expandable view click data.
-     */
-    fun setExpandableViewClickListener(expandableViewClick: ((expandableGroup: ExpandableGroup, position: Int) -> Unit)?) {
-        this.expandableViewClick = expandableViewClick
-    }
-
-    /**
-     * A method to set click listener on expanded view i-e (Child)
-     * @param expandedViewClick A delegate to deliver expanded view click data.
-     */
-    fun setExpandedViewClickListener(
-        expandedViewClick: ((
-            expandedType: ExpandedType,
-            expandableGroup: ExpandableGroup,
-            position: Int
-        ) -> Unit)?
-    ) {
-        this.expandedViewClick = expandedViewClick
-    }
-
-    /**
      * A swift method to add a new group to the list.
      * @param expandableGroup The new group.
      * @param expanded An optional state for expansion to apply (false by default).
      * @param position An optional current position at which to insert the new group in the adapter. (not applicable by default).
      */
-    fun addGroup(expandableGroup: ExpandableGroup, expanded: Boolean = false, position: Int = -1) {
+    fun addGroup(expandableGroup: ExpandableType, expanded: Boolean = false, position: Int = -1) {
 
 
         var atPosition = itemCount
@@ -322,7 +285,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
      * @param expansionState The expansion state to apply to all list.
      * This method can be made public to work on subset of @see ExpandableGroup Class by declaring it outside this class
      */
-    private fun List<ExpandableGroup>.applyExpansionState(expansionState: Boolean) {
+    private fun List<ExpandableType>.applyExpansionState(expansionState: Boolean) {
 
         GlobalScope.launch(Dispatchers.IO) {
             forEach {
@@ -353,7 +316,9 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
     }
 
     private inner class ChildListAdapter(
-        private val expandableGroup: ExpandableGroup,
+        private val expandableGroup: ExpandableType,
+        private val parentViewHolder: PVH,
+        private val position: Int,
         private val onChildRowCreated: (ViewGroup, Int) -> CVH
     ) :
         RecyclerView.Adapter<CVH>() {
@@ -365,7 +330,12 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
             cvh.containerView.setOnClickListener {
                 val position = cvh.adapterPosition
                 val expandedType = mExpandedList[position]
-                expandedViewClick?.invoke(expandedType, expandableGroup, position)
+                onExpandedClick(
+                    parentViewHolder,
+                    cvh,
+                    expandedType,
+                    expandableGroup
+                )
             }
             return cvh
         }
@@ -376,16 +346,16 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
         override fun onBindViewHolder(holder: CVH, position: Int) {
             val expanded = mExpandedList[position]
-            onBindChildViewHolder(holder, expanded)
+            onBindChildViewHolder(holder, expanded, expandableGroup, position)
         }
 
     }
 
-    abstract class ParentViewHolder(override val containerView: View) :
+    abstract class ExpandableViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView),
         LayoutContainer
 
-    abstract class ChildViewHolder(override val containerView: View) :
+    abstract class ExpandedViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView),
         LayoutContainer
 
@@ -405,17 +375,51 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableGroup
 
     abstract fun onCreateParentViewHolder(parent: ViewGroup, viewType: Int): PVH
 
-    abstract fun onBindParentViewHolder(parentViewHolder: PVH, expandableType: ExpandableGroup)
+    abstract fun onBindParentViewHolder(
+        parentViewHolder: PVH,
+        expandableType: ExpandableType,
+        position: Int
+    )
 
     abstract fun onCreateChildViewHolder(child: ViewGroup, viewType: Int): CVH
 
-    abstract fun onBindChildViewHolder(childViewHolder: CVH, expandedType: ExpandedType)
+    abstract fun onBindChildViewHolder(
+        childViewHolder: CVH,
+        expandedType: ExpandedType,
+        expandableType: ExpandableType,
+        position: Int
+    )
+
+    /**
+     * A method to delegation for click event on expandable view.
+     * @param expandableViewHolder The view holder for expandable Item.
+     * @param expandableType The expandable item.
+     */
+    abstract fun onExpandableClick(
+        expandableViewHolder: PVH,
+        expandableType: ExpandableType
+    )
+
+    /**
+     * A method to delegation for click event on expanded view.
+     *@param expandableViewHolder The view holder for expandable Item.
+     *@param expandedViewHolder The view holder for expanded Item.
+     *@param expandedType The expanded item.
+     *@param expandableType The expandable item.
+     */
+    abstract fun onExpandedClick(
+        expandableViewHolder: PVH,
+        expandedViewHolder: CVH,
+        expandedType: ExpandedType,
+        expandableType: ExpandableType
+    )
 
     /**
      * Specifies if you want to show one item expanded in UI at most.
      * @return true to enable one child expansion at a time.
+     * returns false by default.
      */
-    protected abstract fun isSingleExpanded(): Boolean
+    protected open fun isSingleExpanded() = false
 
 }
 
