@@ -293,9 +293,13 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableType 
 
 
             }
+
+            launch(Dispatchers.Main) {
+                if (adapterAttached)
+                    notifyItemRangeChanged(0, itemCount)
+            }
         }
-        if (adapterAttached)
-            notifyItemRangeChanged(0, itemCount)
+
     }
 
     /**
