@@ -4,7 +4,7 @@ An abstract recycler view adapter (One for all) that provides a expandable list 
 ## Features
  - One expandable list adapter for every usage.
  - O(n) Asynchronous Expansion & Collapse using Kotlin Co-routines.
- - Synchronous Expansion & Collapse.
+ - Single Synchronous Expansion & Collapse.
  - Accommodates every list type which extends ExpandableGroup class.
  - Add/remove group.
  - Click Listeners.
