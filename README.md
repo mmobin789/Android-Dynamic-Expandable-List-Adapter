@@ -23,4 +23,4 @@ An abstract recycler view adapter (One for all) that provides a expandable list 
 
    Just clone the project in Android Studio and run it.
   
-   For details read more on [medium](https://android.jlelse.eu/search-on-recycler-view-android-e7661479481).
+   For details read more on [medium](https://android.jlelse.eu/expandable-recycler-view-in-android-8d8927811ba7).
