@@ -177,9 +177,7 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableType 
 
         }
         val childRecyclerView = holder.containerView.getRecyclerView()
-
-        if (childRecyclerView?.adapter == null)
-            childRecyclerView?.adapter = childListAdapter
+        childRecyclerView?.adapter = childListAdapter
 
         clickEvent(expandableGroup, holder.containerView)
 
