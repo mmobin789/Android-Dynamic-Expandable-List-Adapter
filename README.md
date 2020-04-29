@@ -4,8 +4,8 @@ An abstract recycler view adapter (One for all) that provides a expandable list 
 ## Features
  - One expandable list adapter for every usage.
  - O(n) Asynchronous Expansion & Collapse using Kotlin Co-routines.
- - O(1) Synchronous Expansion & Collapse.
- - Accomodates every list type which extends ExpandableGroup class.
+ - Single Synchronous Expansion & Collapse.
+ - Accommodates every list type which extends ExpandableGroup class.
  - Add/remove group.
  - Click Listeners.
  - Single Expansion.
@@ -23,4 +23,4 @@ An abstract recycler view adapter (One for all) that provides a expandable list 
 
    Just clone the project in Android Studio and run it.
   
-   For details read more on [medium](https://android.jlelse.eu/search-on-recycler-view-android-e7661479481).
+   For details read more on [medium](https://android.jlelse.eu/expandable-recycler-view-in-android-8d8927811ba7).
