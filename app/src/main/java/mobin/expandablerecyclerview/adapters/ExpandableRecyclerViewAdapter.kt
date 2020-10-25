@@ -7,9 +7,10 @@ import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ExpandableGroup Adapter for recycler view needs a child type and parent type and a parent list in constructor
@@ -57,6 +58,11 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableType 
      * A tag for logging.
      */
     private val mTAG = "ExpandableGroupAdapter"
+
+    /**
+     * A scope to run UI specific tasks in UI Thread immediately.
+     */
+    private val uiScope = CoroutineScope(Dispatchers.Main.immediate)
 
     /**
      * An enum class holds constant for expansion directions.
@@ -285,17 +291,21 @@ abstract class ExpandableRecyclerViewAdapter<ExpandedType : Any, ExpandableType 
      */
     private fun List<ExpandableType>.applyExpansionState(expansionState: Boolean) {
 
-        GlobalScope.launch(Dispatchers.IO) {
-            forEach {
-                it.isExpanded = expansionState
+        uiScope.launch {
+
+            withContext(Dispatchers.Default)
+            {
+                forEach {
+                    it.isExpanded = expansionState
 
 
+                }
             }
 
-            launch(Dispatchers.Main) {
-                if (adapterAttached)
-                    notifyItemRangeChanged(0, itemCount)
-            }
+
+            if (adapterAttached)
+                notifyItemRangeChanged(0, itemCount)
+
         }
 
     }
